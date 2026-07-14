@@ -36,6 +36,38 @@
 // });
 
 
+// import express from "express";
+// import dotenv from "dotenv";
+// import cookieParser from "cookie-parser";
+// import cors from "cors";
+// import connectDB from "./config/db.js";
+// import authRoutes from "./routes/auth.routes.js";
+
+// dotenv.config();
+// connectDB();
+
+// const app = express();
+
+// app.use(express.json());
+// app.use(cookieParser());
+// app.use(cors({
+//   origin: "http://localhost:5173", // Apne frontend ka URL rakhein
+//   credentials: true,
+// }));
+
+// // Main routes mapping
+// app.use("/api/auth", authRoutes);
+
+// app.get("/", (req, res) => {
+//   res.send("Production Level Security API Running...");
+// });
+
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log(`Server Running on Port ${PORT}`);
+// });
+
+
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -50,8 +82,23 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Dynamic CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  process.env.FRONTEND_URL // Baad mein jab frontend deploy karein toh ye .env me daal dena
+];
+
 app.use(cors({
-  origin: "http://localhost:5173", // Apne frontend ka URL rakhein
+  origin: function (origin, callback) {
+    // Postman ya bina origin ki requests ko allow karne ke liye !origin zaroori hai
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Blocked by CORS Policy"));
+    }
+  },
   credentials: true,
 }));
 
