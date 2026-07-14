@@ -61,8 +61,7 @@ import { getDeviceSecret } from "../utils/device";
 
 // Vite automatic variables compile karta hai. Agar .env na chale toh safe side default value backup hai.
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://new-authentication-git-main-wajahat-ali-jaffri.vercel.app/api",
-  withCredentials: true,
+baseURL: import.meta.env.VITE_API_URL || "https://new-authentication-git-main-wajahat-ali-jaffri.vercel.app/api/",  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
