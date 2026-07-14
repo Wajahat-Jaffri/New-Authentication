@@ -76,6 +76,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
+
 connectDB();
 
 const app = express();
@@ -83,36 +84,35 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// Dynamic CORS configuration
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  process.env.FRONTEND_URL // Baad mein jab frontend deploy karein toh ye .env me daal dena
+  process.env.FRONTEND_URL,
 ];
 
-// Pehle wale CORS middleware ko replace kar ke ye lagayein:
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
 
-// Preflight/OPTIONS request ko Express level par bypass karne ke liye middleware:
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
-  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, x-device-secret");
-  res.sendStatus(200);
-});
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
 
-// Main routes mapping
-app.use("/api/auth", authRoutes);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => {
-  res.send("Production Level Security API Running...");
+  res.send("API Running...");
 });
 
+app.use("/api/auth", authRoutes);
+
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`Server Running on Port ${PORT}`);
+  console.log(`Server Running on ${PORT}`);
 });
