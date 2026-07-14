@@ -90,17 +90,20 @@ const allowedOrigins = [
   process.env.FRONTEND_URL // Baad mein jab frontend deploy karein toh ye .env me daal dena
 ];
 
+// Pehle wale CORS middleware ko replace kar ke ye lagayein:
 app.use(cors({
-  origin: function (origin, callback) {
-    // Postman ya bina origin ki requests ko allow karne ke liye !origin zaroori hai
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Blocked by CORS Policy"));
-    }
-  },
+  origin: "http://localhost:5173",
   credentials: true,
 }));
+
+// Preflight/OPTIONS request ko Express level par bypass karne ke liye middleware:
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
+  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, x-device-secret");
+  res.sendStatus(200);
+});
 
 // Main routes mapping
 app.use("/api/auth", authRoutes);
